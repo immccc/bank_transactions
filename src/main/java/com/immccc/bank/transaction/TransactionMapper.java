@@ -11,7 +11,6 @@ import java.util.UUID;
 @Component
 class TransactionMapper {
 
-
     TransactionEntity toEntity(Transaction transaction) {
         return TransactionEntity.builder()
                 .reference(StringUtils.defaultIfBlank(transaction.getReference(), UUID.randomUUID().toString()))
@@ -23,4 +22,14 @@ class TransactionMapper {
                 .build();
     }
 
+    public Transaction fromEntity(TransactionEntity entity) {
+        return Transaction.builder()
+                .reference(entity.getReference())
+                .accountIban(entity.getAccountIban())
+                .date(entity.getDate())
+                .amount(entity.getAmount())
+                .fee(entity.getFee())
+                .description(entity.getDescription())
+                .build();
+    }
 }

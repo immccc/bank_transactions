@@ -16,17 +16,26 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
+import static com.immccc.bank.transaction.TransactionSorting.ASCENDING;
+import static com.immccc.bank.transaction.TransactionSorting.DESCENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @WebMvcTest(TransactionController.class)
 class TransactionControllerTest {
+
+    private static final String ACCOUNT_IBAN = "ESXXXX";
 
     @Autowired
     private MockMvc mockMvc;
@@ -73,10 +82,51 @@ class TransactionControllerTest {
         assertThat(result.getResponse().getStatus()).isEqualTo(PRECONDITION_FAILED.value());
     }
 
+
+    static Stream<TransactionSorting> findTestParametersProvider() {
+        return Stream.of(ASCENDING, DESCENDING, null);
+    }
+
+    @SneakyThrows
+    @DisplayName("Should return 200 on finding transactions by IBAN")
+    @ParameterizedTest
+    @MethodSource("findTestParametersProvider")
+    void find(TransactionSorting sorting) {
+
+        List<Transaction> transactions = givenTransactionsExisting(sorting);
+
+        String request = givenAFindRequest(sorting);
+
+        MvcResult result = mockMvc.perform(get(request)).andReturn();
+
+        thenResponseContainsTransactions(transactions, result);
+
+    }
+
+    @SneakyThrows
+    private void thenResponseContainsTransactions(List<Transaction> transactions, MvcResult result){
+        assertThat(result.getResponse().getStatus()).isEqualTo(OK.value());
+        assertThat(result.getResponse().getContentAsString()).isEqualTo(mapper.writeValueAsString(transactions));
+    }
+
+    private String givenAFindRequest(TransactionSorting sorting) {
+        String request = "/transactions/iban/" + ACCOUNT_IBAN;
+        if(sorting != null) {
+            request += "?sort=" + sorting;
+        }
+        return request;
+    }
+
+    private List<Transaction> givenTransactionsExisting(TransactionSorting sorting) {
+        List<Transaction> transactions = Collections.singletonList(givenATransaction());
+        doReturn(transactions).when(service).find(ACCOUNT_IBAN, sorting);
+        return transactions;
+    }
+
     private Transaction givenATransaction() {
         return Transaction.builder()
                 .reference("ABC")
-                .accountIban("ESXXXX")
+                .accountIban(ACCOUNT_IBAN)
                 .amount(BigDecimal.TEN)
                 .date(ZonedDateTime.now())
                 .fee(BigDecimal.ONE)
