@@ -13,10 +13,10 @@ import java.time.ZonedDateTime;
 @Value
 @Builder(builderClassName = "TransactionBuilder", toBuilder = true)
 @JsonDeserialize(builder = Transaction.TransactionBuilder.class)
-class Transaction {
+public class Transaction {
 
     @JsonPOJOBuilder(withPrefix = "")
-    static class TransactionBuilder {
+    public static class TransactionBuilder {
     }
 
     @EqualsAndHashCode.Include

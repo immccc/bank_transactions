@@ -12,11 +12,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+public
 class TransactionService {
 
     private final AccountService accountService;
     private final TransactionRepository repository;
     private final TransactionMapper mapper;
+
+    public Optional<Transaction> find(String reference) {
+        return repository.findById(reference)
+                .map(mapper::fromEntity);
+    }
 
     List<Transaction> find(String iban, TransactionSorting sorting) {
 
