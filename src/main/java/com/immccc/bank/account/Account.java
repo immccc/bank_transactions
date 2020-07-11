@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Value
 @Builder(builderClassName = "AccountBuilder", toBuilder = true)
 @JsonDeserialize(builder = Account.AccountBuilder.class)
-public class Account {
+class Account {
 
     @JsonPOJOBuilder(withPrefix = "")
     static class AccountBuilder {
