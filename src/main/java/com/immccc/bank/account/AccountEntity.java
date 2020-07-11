@@ -10,7 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.math.BigDecimal;
 
-@Entity
+@Entity(name = "accounts")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
