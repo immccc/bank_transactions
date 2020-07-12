@@ -16,5 +16,10 @@ CREATE TABLE transactions (
     transaction_date DATE,
     amount NUMERIC(100, 2) NOT NULL,
     fee NUMERIC(100, 2) DEFAULT 0.00,
-    description VARCHAR(128)
+    description VARCHAR(128),
+
+    FOREIGN KEY (account_iban) REFERENCES accounts(iban)
 );
+
+DROP INDEX IF EXISTS transactions_iban_index;
+CREATE INDEX transactions_iban_index ON transactions(account_iban);
